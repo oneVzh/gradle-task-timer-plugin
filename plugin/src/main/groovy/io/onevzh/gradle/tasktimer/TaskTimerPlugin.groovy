@@ -1,4 +1,5 @@
-import io.onevzh.gradle.task_timer.TaskTimerListener
+package io.onevzh.gradle.tasktimer
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -7,10 +8,8 @@ import org.gradle.api.Project
  */
 class TaskTimerPlugin implements Plugin<Project> {
 
-
     @Override
     void apply(Project project) {
         project.gradle.addListener(new TaskTimerListener())
-
     }
 }
