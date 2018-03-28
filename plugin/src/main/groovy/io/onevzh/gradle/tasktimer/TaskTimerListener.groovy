@@ -39,8 +39,12 @@ class TaskTimerListener extends BuildAdapter implements TaskExecutionListener {
         long totalTime = list.sum {
             it.ms
         }
-        long maxTime = list.max { it.ms }.ms
         println("== Total task time: ${formatTime(totalTime, 0)}")
+        long maxTime = list.max { it.ms }.ms
+        if (maxTime <= 0) {
+            return
+        }
+
         int format = getTimeFormat(maxTime)
         list.forEach({
             printRow(it, totalTime, maxTime, format)

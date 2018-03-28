@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'task-timer'
+//apply plugin: 'task-timer'
 
 android {
     compileSdkVersion 26

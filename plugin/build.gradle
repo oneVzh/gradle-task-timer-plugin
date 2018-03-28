@@ -1,17 +1,86 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
 }
 
-group = 'io.onevzh.gradle'
-version = '0.1'
-archivesBaseName = 'task-timer'
+group 'io.onevzh.gradle'
+version '0.1'
 
-//install {
-//    repositories.mavenInstaller {
-//    }
-//}
+def siteUrl = 'https://github.com/oneVzh/gradle-task-timer-plugin'   // 项目的主页
+def gitUrl = 'https://github.com/oneVzh/gradle-task-timer-plugin.git'   // Git仓库的url
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.bintrayUser
+    key = properties.bintrayKey
+    publications = ['mavenJava']
+    pkg {
+        userOrg = "onevzh"
+        repo = 'gradle_plugin'
+        name = 'task-timer'
+        licenses = ['Apache-2.0']
+        vcsUrl = gitUrl
+        websiteUrl = siteUrl
+        publish true
+        version {
+            attributes = ['gradle-plugin': 'task-timer:io.onevzh.gradle:gradle-task-timer-plugin']
+        }
+    }
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "onevzh"
+            name "oneVzh"
+            email "oneVzh@gmail.com"
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            artifactId 'task-timer'
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'A gradle plugin for task time track')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+
+task install(dependsOn: 'publishMavenJavaPublicationToMavenLocal') {
+    doLast {
+        logger.info "Installing $project.name"
+    }
+}
